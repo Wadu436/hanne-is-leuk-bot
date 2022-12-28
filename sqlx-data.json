@@ -34,7 +34,7 @@
         false,
         false,
         false,
-        true
+        false
       ],
       "parameters": {
         "Left": [
@@ -78,7 +78,7 @@
         false,
         false,
         false,
-        true
+        false
       ],
       "parameters": {
         "Left": [
@@ -111,13 +111,19 @@
           "name": "message_timezone",
           "ordinal": 3,
           "type_info": "Text"
+        },
+        {
+          "name": "format",
+          "ordinal": 4,
+          "type_info": "Text"
         }
       ],
       "nullable": [
         false,
-        true,
-        true,
-        true
+        false,
+        false,
+        false,
+        false
       ],
       "parameters": {
         "Left": [
@@ -161,7 +167,7 @@
         false,
         false,
         false,
-        true
+        false
       ],
       "parameters": {
         "Left": [
@@ -170,21 +176,6 @@
       }
     },
     "query": "SELECT * FROM exams WHERE exam_id = $1"
-  },
-  "9e842dc74ddb17f0fd5b7a12f4cbf392ee1733670092f3b6c530e5358b4a3382": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int8",
-          "Time",
-          "Text"
-        ]
-      }
-    },
-    "query": "INSERT INTO guilds(guild_id, message_channel_id, message_time, message_timezone) VALUES($1, $2, $3, $4)\n        ON CONFLICT(guild_id) DO UPDATE SET message_channel_id=excluded.message_channel_id, message_time=excluded.message_time, message_timezone=excluded.message_timezone;"
   },
   "b583dee7b6087acf68ef470105b0ce6d3796dbb78f93b5d2fe2da270e82fc9ec": {
     "describe": {
@@ -243,12 +234,28 @@
         false,
         false,
         false,
-        true
+        false
       ],
       "parameters": {
         "Left": []
       }
     },
     "query": "SELECT * FROM exams"
+  },
+  "ffb855bb91e14472f4fb4ef941d5264756110d9cf4f868cc59d1592b43f7ed0c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Time",
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO guilds(guild_id, message_channel_id, message_time, message_timezone, format) VALUES($1, $2, $3, $4, $5)\n        ON CONFLICT(guild_id) DO UPDATE SET message_channel_id=excluded.message_channel_id, message_time=excluded.message_time, message_timezone=excluded.message_timezone, format=excluded.format;"
   }
 }
