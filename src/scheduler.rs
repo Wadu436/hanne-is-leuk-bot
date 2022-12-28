@@ -140,7 +140,7 @@ impl Scheduler {
         let exams_database = self.database.get_all_exams().await?;
 
         println!("Loading {} exams", exams_database.len());
-
+        let mut exams_vec = Vec::new();
         for exam_database in exams_database {
             // Calculate scheduled time
             if let Some(guild_database) = self.database.get_guild(exam_database.guild_id).await? {
@@ -154,10 +154,15 @@ impl Scheduler {
                     exam: exam_database,
                     guild: guild_database,
                 };
-                {
-                    let mut exams = self.exams.lock().map_err(|_| "Error locking Mutex")?;
-                    exams.push(exam);
-                }
+                exams_vec.push(exam);
+            }
+        }
+
+        {
+            let mut exams = self.exams.lock().map_err(|_| "Error locking Mutex")?;
+            exams.clear();
+            for exam in exams_vec {
+                exams.push(exam)
             }
         }
 

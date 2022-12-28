@@ -128,6 +128,9 @@ pub async fn time(
         }
     }
 
+    // Also reload exams
+    ctx.data().scheduler.load_exams_from_database().await?;
+
     Ok(())
 }
 
