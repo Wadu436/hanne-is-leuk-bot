@@ -13,6 +13,7 @@ use crate::{
 };
 use chrono::{DateTime, Days, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use chrono_tz::Tz;
+use poise::serenity_prelude::Mentionable;
 use serenity::client::Context;
 use tokio::time::{self, MissedTickBehavior};
 
@@ -120,7 +121,14 @@ impl Scheduler {
             if let Some(guild) = self.database.get_guild(exam.guild_id).await? {
                 guild
                     .message_channel_id
-                    .say(&self.bot_context, format_exam(guild.format, exam))
+                    .say(
+                        &self.bot_context,
+                        format!(
+                            "{}\n{}",
+                            exam.user_id.mention(),
+                            format_exam(guild.format, exam)
+                        ),
+                    )
                     .await?;
             }
         };
