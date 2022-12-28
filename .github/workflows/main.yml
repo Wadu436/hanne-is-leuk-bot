@@ -1,0 +1,71 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  deploy:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Build Container
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: build container
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false
+          tags: hanne-is-leuk-bot:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+
+      # Send it over to the server
+      - name: save container
+        run: mkdir --parents sync/containers && docker save hanne-is-leuk-bot:latest | gzip > sync/containers/hanne-is-leuk-bot-latest.tar.gz
+
+      - name: copy compose file to sync folder
+        run: cp docker-compose.yml sync/
+
+      - name: send container and compose file to server (rsync)
+        uses: burnett01/rsync-deployments@5.2
+        with:
+          switches: -avzr --delete --exclude .env
+          path: sync/
+          remote_path: ~/hanne-is-leuk-bot
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USERNAME }}
+          remote_key: ${{ secrets.SSH_KEY }}
+
+      # Start the container
+      - name: load + start container
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ~/hanne-is-leuk-bot/ && \
+            docker load -i containers/hanne-is-leuk-bot-latest.tar.gz && \
+            docker-compose up -d
+          command_timeout: 5m

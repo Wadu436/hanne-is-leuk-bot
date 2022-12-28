@@ -3,6 +3,8 @@ FROM rust:1.59.0 AS builder
 RUN USER=root cargo new --bin hanne-is-leuk-bot
 WORKDIR /hanne-is-leuk-bot
 
+ENV SQLX_OFFLINE=true
+
 # Cache dependencies
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
