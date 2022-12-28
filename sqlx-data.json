@@ -44,6 +44,18 @@
     },
     "query": "SELECT * FROM exams WHERE guild_id = $1"
   },
+  "3690074b16f656edbfc0121dae15ac998f0c0c4539d6f18f518f0c86873154f0": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "DELETE FROM exams WHERE exam_id=$1;"
+  },
   "5f0e186b50fee558404658c8640a37e6052fcfbe9dcd898aadc8ba79ebc68455": {
     "describe": {
       "columns": [

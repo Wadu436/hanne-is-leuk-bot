@@ -80,7 +80,14 @@ async fn schedule_task(scheduler: Arc<Scheduler>) {
                 let exam = exams.pop().unwrap();
 
                 let scheduler_clone = scheduler.clone();
-                tokio::spawn(async move { scheduler_clone.send_message(exam.exam.exam_id).await });
+                tokio::spawn(async move {
+                    if let Ok(_) = scheduler_clone.send_message(exam.exam.exam_id).await {
+                        let _ = scheduler_clone
+                            .database
+                            .delete_exam(exam.exam.exam_id)
+                            .await;
+                    }
+                });
             }
         }
 
