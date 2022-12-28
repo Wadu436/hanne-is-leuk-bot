@@ -21,7 +21,9 @@ pub async fn exams(_ctx: Context<'_, Data, Error>) -> Result<(), Error> {
 pub async fn guild(ctx: Context<'_, Data, Error>) -> Result<(), Error> {
     let database = &ctx.data().database;
     let guild = ctx.guild().ok_or("Not running in a guild")?;
-    let exams = database.get_guild_exams(guild.id).await?;
+    let mut exams = database.get_guild_exams(guild.id).await?;
+    exams.sort_unstable_by(|a, b| a.day.cmp(&b.day));
+    let exams = exams;
 
     let mut message = String::with_capacity(32 + 32 * exams.len());
 
@@ -51,7 +53,9 @@ pub async fn user(
 ) -> Result<(), Error> {
     let database = &ctx.data().database;
     let guild = ctx.guild().ok_or("Not running in a guild")?;
-    let exams = database.get_user_exams(guild.id, user.id).await?;
+    let mut exams = database.get_user_exams(guild.id, user.id).await?;
+    exams.sort_unstable_by(|a, b| a.day.cmp(&b.day));
+    let exams = exams;
 
     let user_name = user.name;
 
