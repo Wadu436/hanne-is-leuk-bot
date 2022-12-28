@@ -1,6 +1,6 @@
-FROM rust:1.59.0 AS builder
+FROM rust:1.66.0 AS builder
 
-RUN USER=root cargo new --bin hanne-is-leuk-bot
+RUN USER=root cargo new --lib hanne-is-leuk-bot
 WORKDIR /hanne-is-leuk-bot
 
 ENV SQLX_OFFLINE=true
@@ -9,13 +9,16 @@ ENV SQLX_OFFLINE=true
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 
-RUN cargo build --bin hanne-is-leuk-bot --release
+RUN cargo build --release
 RUN rm src/*.rs
-RUN rm /hanne-is-leuk-bot/target/release/deps/namr1_stonks_bot*
+RUN rm /hanne-is-leuk-bot/target/release/deps/hanne_is_leuk_bot*
 
 # Build App
 COPY ./src ./src
-RUN cargo build --bin hanne-is-leuk-bot --release
+COPY ./migrations ./migrations
+COPY ./sqlx-data.json ./sqlx-data.json
+COPY ./build.rs ./build.rs
+RUN cargo build --release
 
 # Final image
 FROM debian:buster-slim
