@@ -1,0 +1,254 @@
+{
+  "db": "PostgreSQL",
+  "3309f3a4a20cf2cc659b150bd46ae23b6f4c1d6d6914eaca6df72d878be2637a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "exam_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "day",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "exam_name",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM exams WHERE guild_id = $1"
+  },
+  "5f0e186b50fee558404658c8640a37e6052fcfbe9dcd898aadc8ba79ebc68455": {
+    "describe": {
+      "columns": [
+        {
+          "name": "exam_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "day",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "exam_name",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM exams WHERE guild_id = $1 AND user_id = $2"
+  },
+  "5f4021f5f3813aaded6682a6a5e079f3108e8f064243a08cc50dc44f4ed964aa": {
+    "describe": {
+      "columns": [
+        {
+          "name": "guild_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "message_channel_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "message_time",
+          "ordinal": 2,
+          "type_info": "Time"
+        },
+        {
+          "name": "message_timezone",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM guilds WHERE guild_id = $1;"
+  },
+  "7dc29343d8dbbe8ec00e49850e34a4420ba1c7e14cc06fd46b45cffbd6426190": {
+    "describe": {
+      "columns": [
+        {
+          "name": "exam_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "day",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "exam_name",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM exams WHERE exam_id = $1"
+  },
+  "9e842dc74ddb17f0fd5b7a12f4cbf392ee1733670092f3b6c530e5358b4a3382": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Time",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO guilds(guild_id, message_channel_id, message_time, message_timezone) VALUES($1, $2, $3, $4)\n        ON CONFLICT(guild_id) DO UPDATE SET message_channel_id=excluded.message_channel_id, message_time=excluded.message_time, message_timezone=excluded.message_timezone;"
+  },
+  "b583dee7b6087acf68ef470105b0ce6d3796dbb78f93b5d2fe2da270e82fc9ec": {
+    "describe": {
+      "columns": [
+        {
+          "name": "exam_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Date",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO exams(user_id, guild_id, day, exam_name) VALUES($1, $2, $3, $4) RETURNING exam_id;"
+  },
+  "c51e78b8fd38ccb906383dca8eda9096c58b62bdf3e451fe330a38dc13c6e708": {
+    "describe": {
+      "columns": [
+        {
+          "name": "exam_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "day",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "exam_name",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM exams"
+  }
+}
