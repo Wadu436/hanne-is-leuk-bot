@@ -3,6 +3,7 @@ services:
   bot:
     image: hanne-is-leuk-bot
     build: .
+    restart: always
     environment:
       DISCORD_TOKEN: "${DISCORD_TOKEN}"
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/${POSTGRES_DB}

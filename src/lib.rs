@@ -104,9 +104,7 @@ pub async fn run_bot(token: String, database_url: String) -> Result<(), Error> {
         .build()
         .await?;
 
-    if let Err(why) = framework.start().await {
-        println!("An error occurred while running the bot: {:?}", why);
-    }
+    framework.start().await?;
 
     Ok(())
 }

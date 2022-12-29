@@ -33,5 +33,11 @@ async fn main() -> Result<(), Error> {
     let token = env::var("DISCORD_TOKEN").expect("Missing Discord token");
     let database_url = env::var("DATABASE_URL").expect("Missing database url");
 
-    run_bot(token, database_url).await
+    if let Err(why) = run_bot(token, database_url).await {
+        println!("An error occurred while running the bot: {:?}", why);
+    } else {
+        println!("Exiting the program without errors");
+    }
+
+    Ok(())
 }
