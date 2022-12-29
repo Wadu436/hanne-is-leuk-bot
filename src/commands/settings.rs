@@ -38,7 +38,6 @@ pub async fn channel(
     let current_user_id = ctx.serenity_context().cache.current_user_id();
 
     let permissions = channel.permissions_for_user(&ctx, &current_user_id)?;
-    println!("Bot has these permissions in {}:\n{}", channel, permissions);
     if !permissions.send_messages() {
         ctx.say(format!(
             "This bot doesn't have permissions to send messages in {}",

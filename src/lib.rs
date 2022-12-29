@@ -3,6 +3,8 @@ use std::{sync::Arc, vec};
 use chrono::NaiveTime;
 use database::Database;
 use formatter::DEFAULT_FORMAT;
+use log::{debug, info};
+use poise::serenity_prelude::CommandDataOption;
 use poise::{FrameworkContext, FrameworkOptions};
 
 use scheduler::Scheduler;
@@ -25,6 +27,26 @@ pub struct Data {
     scheduler: Arc<Scheduler>,
 }
 
+fn format_options(options: &Vec<CommandDataOption>) -> String {
+    options
+        .iter()
+        .map(|option| format_option(option))
+        .collect::<Vec<String>>()
+        .join(",")
+}
+
+fn format_option(option: &CommandDataOption) -> String {
+    match option.kind {
+        poise::serenity_prelude::CommandOptionType::SubCommand
+        | poise::serenity_prelude::CommandOptionType::SubCommandGroup => {
+            format!("{}: ({})", option.name, format_options(&option.options))
+        }
+        _ => {
+            format!("{}: {:?}", option.name, option.value)
+        }
+    }
+}
+
 async fn event_handler(
     ctx: &Context,
     event: &poise::Event<'_>,
@@ -32,7 +54,7 @@ async fn event_handler(
 ) -> Result<(), Error> {
     match event {
         poise::Event::Ready { data_about_bot } => {
-            println!("{} is connected!", data_about_bot.user.name);
+            info!("{} is connected!", data_about_bot.user.name);
             // Register commands
             poise::builtins::register_globally(ctx, &framework.options().commands).await?;
 
@@ -52,6 +74,16 @@ async fn event_handler(
                         format: DEFAULT_FORMAT.to_string(),
                     })
                     .await;
+            }
+            Ok(())
+        }
+        poise::Event::InteractionCreate { interaction } => {
+            if let Some(command) = interaction.clone().application_command() {
+                let options = format_options(&command.data.options);
+                debug!(
+                    "Received command {:?} with options ({})",
+                    command.data.name, options
+                );
             }
             Ok(())
         }

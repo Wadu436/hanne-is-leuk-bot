@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use chrono::NaiveDate;
+use log::info;
 use poise::serenity_prelude::{ChannelId, GuildId, UserId};
 use serenity::prelude::TypeMapKey;
 use sqlx::{
@@ -186,16 +187,17 @@ impl TypeMapKey for Database {
 pub async fn setup_database(url: &str) -> Result<Database, sqlx::Error> {
     let connect_options = PgConnectOptions::from_str(url)?;
 
-    println!("Connecting with options {:?}", connect_options);
-
+    info!("Connecting to database...");
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect_with(connect_options)
         .await?;
+    info!("Connected to database");
 
     // Run migrations
-    println!("Running database migrations...");
+    info!("Running any pending database migrations...");
     sqlx::migrate!().run(&pool).await?;
+    info!("Done running migrations");
 
     Ok(Database { pool })
 }

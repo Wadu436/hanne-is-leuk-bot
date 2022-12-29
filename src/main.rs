@@ -24,19 +24,23 @@ use std::env;
 
 use hanne_is_leuk_bot::{run_bot, Error};
 
+use log::{error, warn};
+
 use dotenvy::dotenv;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     dotenv().ok();
 
+    env_logger::init();
+
     let token = env::var("DISCORD_TOKEN").expect("Missing Discord token");
     let database_url = env::var("DATABASE_URL").expect("Missing database url");
 
     if let Err(why) = run_bot(token, database_url).await {
-        println!("An error occurred while running the bot: {:?}", why);
+        error!("An error occurred while running the bot: {:?}", why);
     } else {
-        println!("Exiting the program without errors");
+        warn!("Exiting the program without errors");
     }
 
     Ok(())

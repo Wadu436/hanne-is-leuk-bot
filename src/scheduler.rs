@@ -13,6 +13,7 @@ use crate::{
 };
 use chrono::{DateTime, Days, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use chrono_tz::Tz;
+use log::{debug, error, info, warn};
 use poise::serenity_prelude::Mentionable;
 use serenity::client::Context;
 use tokio::time::{self, MissedTickBehavior};
@@ -54,6 +55,7 @@ impl PartialOrd for ScheduledExam {
 }
 
 async fn schedule_task(scheduler: Arc<Scheduler>) {
+    info!("Starting scheduler task");
     // Load exams
     let _ = scheduler.load_exams_from_database().await;
 
@@ -81,11 +83,16 @@ async fn schedule_task(scheduler: Arc<Scheduler>) {
 
                 let scheduler_clone = scheduler.clone();
                 tokio::spawn(async move {
-                    if let Ok(_) = scheduler_clone.send_message(exam.exam.exam_id).await {
-                        let _ = scheduler_clone
-                            .database
-                            .delete_exam(exam.exam.exam_id)
-                            .await;
+                    match scheduler_clone.send_message(exam.exam.exam_id).await {
+                        Ok(_) => {
+                            let _ = scheduler_clone
+                                .database
+                                .delete_exam(exam.exam.exam_id)
+                                .await;
+                        }
+                        Err(err) => {
+                            error!("Error while sending message: {}", err);
+                        }
                     }
                 });
             }
@@ -124,8 +131,10 @@ impl Scheduler {
         scheduler
     }
     async fn send_message(&self, exam_id: i64) -> Result<(), Error> {
+        debug!("Attempting to send exam message...");
         if let Some(exam) = self.database.get_exam(exam_id).await? {
             if let Some(guild) = self.database.get_guild(exam.guild_id).await? {
+                debug!("Sending exam message in {}", guild.guild_id);
                 guild
                     .message_channel_id
                     .say(
@@ -137,7 +146,18 @@ impl Scheduler {
                         ),
                     )
                     .await?;
+                return Ok(());
+            } else {
+                warn!(
+                    "Failed to send exam message: couldn't find guild {} in database",
+                    exam.guild_id
+                );
             }
+        } else {
+            warn!(
+                "Failed to send exam message: couldn't find exam {} in database",
+                exam_id
+            );
         };
 
         Ok(())
@@ -146,7 +166,7 @@ impl Scheduler {
     pub async fn load_exams_from_database(&self) -> Result<(), Error> {
         let exams_database = self.database.get_all_exams().await?;
 
-        println!("Loading {} exams", exams_database.len());
+        debug!("(Re)loading {} exams from database", exams_database.len());
         let mut exams_vec = Vec::new();
         for exam_database in exams_database {
             // Calculate scheduled time
@@ -177,8 +197,10 @@ impl Scheduler {
     }
 
     pub async fn add_exam(&self, exam_id: i64) -> Result<(), Error> {
+        debug!("Attempting to add exam to scheduler: {}", exam_id);
         if let Some(exam_database) = self.database.get_exam(exam_id).await? {
             if let Some(guild_database) = self.database.get_guild(exam_database.guild_id).await? {
+                debug!("Adding exam to scheduler: {:?}", exam_database);
                 let datetime_utc: DateTime<Utc> = calculate_schedule_time(
                     exam_database.day,
                     guild_database.message_time,

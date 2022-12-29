@@ -12,10 +12,11 @@ services:
       dockerfile: .devcontainer/Dockerfile
 
     env_file:
-        - .env
-      
+      - .env
+
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@database/postgres
+      DATABASE_URL: "postgresql://postgres:postgres@database/postgres"
+      RUST_LOG: "hanne_is_leuk_bot=debug"
 
     volumes:
       # Update this to wherever you want VS Code to mount the folder of your project
@@ -30,8 +31,8 @@ services:
 
     # Overrides default command so things don't shut down after the process ends.
     command: /bin/sh -c "while sleep 1000; do :; done"
-  
-  postgres:
+
+  database:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
