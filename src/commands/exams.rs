@@ -36,7 +36,7 @@ async fn format_exam_list<C: CacheHttp>(
     };
 
     if id {
-        message.push_str(&format!("(ID: {})", exam.day));
+        message.push_str(&format!(" (ID: {})", exam.exam_id));
     }
 
     Ok(message)
