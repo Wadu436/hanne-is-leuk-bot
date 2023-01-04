@@ -1,9 +1,9 @@
 // exam crud command
 
-use poise::Context;
+use poise::{serenity_prelude::CacheHttp, Context};
 use serenity::model::user::User;
 
-use crate::{Data, Error};
+use crate::{database::DbExam, Data, Error};
 
 /// Change the bot's settings for this server
 #[poise::command(
@@ -14,6 +14,32 @@ use crate::{Data, Error};
 )]
 pub async fn exams(_ctx: Context<'_, Data, Error>) -> Result<(), Error> {
     Ok(())
+}
+
+async fn format_exam_list<C: CacheHttp>(
+    cache_http: C,
+    exam: DbExam,
+    user: bool,
+    id: bool,
+) -> Result<String, Error> {
+    let mut message = String::with_capacity(32);
+
+    if user {
+        let user_name = exam.user_id.to_user(cache_http).await?.name;
+        message.push_str(&format!("{} - ", user_name));
+    }
+
+    if !exam.exam_name.is_empty() {
+        message.push_str(&format!("{} - {}", exam.day, exam.exam_name));
+    } else {
+        message.push_str(&format!("{}", exam.day));
+    };
+
+    if id {
+        message.push_str(&format!("(ID: {})", exam.day));
+    }
+
+    Ok(message)
 }
 
 /// List the exams in this guild
@@ -29,18 +55,10 @@ pub async fn guild(ctx: Context<'_, Data, Error>) -> Result<(), Error> {
 
     message.push_str(&format!("Exams in {}:\n", guild.name));
     for exam in exams {
-        let user_name = exam.user_id.to_user(&ctx).await?.name;
-        if !exam.exam_name.is_empty() {
-            message.push_str(&format!(
-                "\t{} - {} - {} (ID: {})\n",
-                user_name, exam.day, exam.exam_name, exam.exam_id
-            ));
-        } else {
-            message.push_str(&format!(
-                "\t{} - {} (ID: {})\n",
-                user_name, exam.day, exam.exam_id
-            ));
-        }
+        message.push_str(&format!(
+            "\t{}\n",
+            format_exam_list(&ctx, exam, true, true).await?
+        ));
     }
 
     ctx.say(message).await?;
@@ -66,11 +84,10 @@ pub async fn user(
 
     message.push_str(&format!("Exams for {} in {}:\n", user_name, guild.name));
     for exam in exams {
-        if !exam.exam_name.is_empty() {
-            message.push_str(&format!("\t{} - {}\n", exam.day, exam.exam_name));
-        } else {
-            message.push_str(&format!("\t{}\n", exam.day));
-        }
+        message.push_str(&format!(
+            "\t{}\n",
+            format_exam_list(&ctx, exam, false, true).await?
+        ));
     }
 
     ctx.say(message).await?;

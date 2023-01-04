@@ -72,7 +72,7 @@ pub async fn add(
     Ok(())
 }
 
-/// Add a new exam
+/// Delete an existing exam
 #[poise::command(slash_command, required_permissions = "ADMINISTRATOR")]
 pub async fn delete(
     ctx: Context<'_, Data, Error>,
