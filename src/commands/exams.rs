@@ -32,11 +32,14 @@ pub async fn guild(ctx: Context<'_, Data, Error>) -> Result<(), Error> {
         let user_name = exam.user_id.to_user(&ctx).await?.name;
         if !exam.exam_name.is_empty() {
             message.push_str(&format!(
-                "\t{} - {} - {}\n",
-                user_name, exam.day, exam.exam_name
+                "\t{} - {} - {} (ID: {})\n",
+                user_name, exam.day, exam.exam_name, exam.exam_id
             ));
         } else {
-            message.push_str(&format!("\t{} - {}\n", user_name, exam.day));
+            message.push_str(&format!(
+                "\t{} - {} (ID: {})\n",
+                user_name, exam.day, exam.exam_id
+            ));
         }
     }
 

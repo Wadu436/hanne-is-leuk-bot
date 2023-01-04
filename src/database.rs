@@ -171,7 +171,7 @@ impl Database {
         Ok(ret.exam_id)
     }
 
-    // Inserts a DbExam, ignoring the exam_id
+    // Deletes a DbExam
     pub async fn delete_exam(&self, exam_id: i64) -> Result<(), Error> {
         sqlx::query!("DELETE FROM exams WHERE exam_id=$1;", exam_id)
             .execute(&self.pool)

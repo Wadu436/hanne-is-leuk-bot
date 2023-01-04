@@ -8,9 +8,18 @@ use poise::Context;
 
 use crate::{database::DbExam, Data, Error};
 
+#[poise::command(
+    slash_command,
+    required_permissions = "ADMINISTRATOR",
+    subcommands("add", "delete")
+)]
+pub async fn exam(_ctx: Context<'_, Data, Error>) -> Result<(), Error> {
+    Ok(())
+}
+
 /// Add a new exam
 #[poise::command(slash_command, required_permissions = "ADMINISTRATOR")]
-pub async fn exam(
+pub async fn add(
     ctx: Context<'_, Data, Error>,
     #[description = "Which user the exam is taken by"] user: serenity::model::user::User,
     #[description = "What day the exam is. (format: \"YYYY-MM-DD\")"] day: String,
@@ -59,6 +68,34 @@ pub async fn exam(
         ))
         .await?;
     }
+
+    Ok(())
+}
+
+/// Add a new exam
+#[poise::command(slash_command, required_permissions = "ADMINISTRATOR")]
+pub async fn delete(
+    ctx: Context<'_, Data, Error>,
+    #[description = "ID of the exam to delete"] id: i64,
+) -> Result<(), Error> {
+    let database = &ctx.data().database;
+    let scheduler = &ctx.data().scheduler;
+
+    if let Some(exam) = database.get_exam(id).await? {
+        let user_name = exam.user_id.to_user(&ctx).await?.name;
+        let exam_str = if !exam.exam_name.is_empty() {
+            format!("{} - {} - {}", user_name, exam.day, exam.exam_name)
+        } else {
+            format!("{} - {}", user_name, exam.day)
+        };
+        database.delete_exam(id).await?;
+        ctx.say(format!("Deleted exam {}", exam_str)).await?;
+    } else {
+        ctx.say(format!("No exam with id {} exists", id)).await?;
+    }
+
+    // Reload scheduler
+    scheduler.load_exams_from_database().await?;
 
     Ok(())
 }
