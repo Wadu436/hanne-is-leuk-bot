@@ -1,5 +1,5 @@
 use crate::database::DbExam;
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 // $() => Only when exam name is empty
@@ -11,14 +11,12 @@ use regex::Regex;
 
 pub const DEFAULT_FORMAT: &'static str = "$(Good luck with your exam!)#(Good luck with $name!)";
 
+static NO_NAME_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\$\(([^)]*)\)").unwrap());
+static NAME_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\#\(([^)]*)\)").unwrap());
+static NAME_REPLACE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\$name").unwrap());
+static NEWLINE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\\n").unwrap());
+
 pub fn format_exam<S: AsRef<str>>(format: S, exam: DbExam) -> String {
-    // Compile regexes
-    lazy_static! {
-        static ref NO_NAME_REGEX: Regex = Regex::new(r"\$\(([^)]*)\)").unwrap();
-        static ref NAME_REGEX: Regex = Regex::new(r"\#\(([^)]*)\)").unwrap();
-        static ref NAME_REPLACE_REGEX: Regex = Regex::new(r"\$name").unwrap();
-        static ref NEWLINE: Regex = Regex::new(r"\\n").unwrap();
-    }
     let filtered_format = if exam.exam_name.is_empty() {
         let f = NO_NAME_REGEX.replace_all(format.as_ref(), "$1");
         NAME_REGEX.replace_all(f.as_ref(), "").to_string()
