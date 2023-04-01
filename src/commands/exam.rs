@@ -11,14 +11,15 @@ use crate::{database::DbExam, Data, Error};
 #[poise::command(
     slash_command,
     required_permissions = "ADMINISTRATOR",
-    subcommands("add", "delete")
+    subcommands("add", "delete"),
+    guild_only
 )]
 pub async fn exam(_ctx: Context<'_, Data, Error>) -> Result<(), Error> {
     Ok(())
 }
 
 /// Add a new exam
-#[poise::command(slash_command, required_permissions = "ADMINISTRATOR")]
+#[poise::command(slash_command, required_permissions = "ADMINISTRATOR", guild_only)]
 pub async fn add(
     ctx: Context<'_, Data, Error>,
     #[description = "Which user the exam is taken by"] user: serenity::model::user::User,

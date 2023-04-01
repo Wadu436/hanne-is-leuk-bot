@@ -1,10 +1,11 @@
+use std::collections::HashMap;
 use std::{sync::Arc, vec};
 
 use chrono::NaiveTime;
 use database::Database;
 use formatter::DEFAULT_FORMAT;
 use log::{debug, info};
-use poise::serenity_prelude::CommandDataOption;
+use poise::serenity_prelude::{CommandDataOption, UserId};
 use poise::{FrameworkContext, FrameworkOptions};
 
 use scheduler::Scheduler;
@@ -15,16 +16,22 @@ use crate::database::DbGuild;
 mod commands;
 mod database;
 mod formatter;
+mod schedule_parser;
 mod scheduler;
 
 use serenity::model::guild::Guild;
 use serenity::model::id::ChannelId;
+
+use commands::ParseInteraction;
+
+use std::sync::Mutex;
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
 pub struct Data {
     database: Database,
     scheduler: Arc<Scheduler>,
+    parse_interactions: Arc<Mutex<HashMap<UserId, ParseInteraction>>>,
 }
 
 fn format_options(options: &Vec<CommandDataOption>) -> String {
@@ -117,7 +124,13 @@ pub async fn run_bot(token: String, database_url: String) -> Result<(), Error> {
 
     let framework = poise::Framework::builder()
         .options(FrameworkOptions {
-            commands: vec![commands::settings(), commands::exam(), commands::exams()],
+            commands: vec![
+                commands::settings(),
+                commands::exam(),
+                commands::exams(),
+                commands::add_parse_menu(),
+                commands::parse(),
+            ],
             event_handler: |ctx, event, framework, _data| {
                 Box::pin(async move { event_handler(ctx, event, framework).await })
             },
@@ -128,6 +141,7 @@ pub async fn run_bot(token: String, database_url: String) -> Result<(), Error> {
                 Ok(Data {
                     database: database.clone(),
                     scheduler: Scheduler::new(database, ctx.clone()),
+                    parse_interactions: Arc::new(Mutex::new(HashMap::new())),
                 })
             })
         })

@@ -158,7 +158,7 @@ impl Database {
     }
 
     // Inserts a DbExam, ignoring the exam_id
-    pub async fn insert_exam(&self, exam: DbExam) -> Result<i64, Error> {
+    pub async fn insert_exam(&self, exam: DbExam) -> Result<i64, sqlx::Error> {
         let ret = sqlx::query!(
             "INSERT INTO exams(user_id, guild_id, day, exam_name) VALUES($1, $2, $3, $4) RETURNING exam_id;",
             exam.user_id.0 as i64,
