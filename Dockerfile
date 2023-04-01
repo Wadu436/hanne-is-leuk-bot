@@ -8,6 +8,7 @@ ENV SQLX_OFFLINE=true
 # Cache dependencies
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
+COPY ./.cargo ./.cargo
 
 RUN cargo build --release
 RUN rm src/*.rs
