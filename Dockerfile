@@ -1,4 +1,4 @@
-FROM rust:1.66.0 AS builder
+FROM rust:1.68.0 AS builder
 
 RUN USER=root cargo new --lib hanne-is-leuk-bot
 WORKDIR /hanne-is-leuk-bot
