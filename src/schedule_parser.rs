@@ -5,7 +5,7 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 
 static EXAM_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?:(\d{1,2}) (\w*)|(\d{1,2})[/-](\d{1,2}))[:- ]+(?:\d{1,2}[hu]\d{0,2})?[ ]*(.*)")
+    Regex::new(r"(?:(\d{1,2}) (\w*)|(\d{1,2})[/-](\d{1,2}))[:\- ]+(?:\d{1,2}[hu]\d{0,2})?[ ]*(.*)")
         .unwrap()
 });
 
